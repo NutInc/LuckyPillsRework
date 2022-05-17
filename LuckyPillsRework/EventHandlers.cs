@@ -13,6 +13,8 @@ namespace LuckyPillsRework
     {
 
         static Config config = LuckyPills.Singleton.Config;
+
+        // Picking up item
         public static void OnPickingUpItem(PickingUpItemEventArgs ev)
         {
             Player player = ev.Player;
