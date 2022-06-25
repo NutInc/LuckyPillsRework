@@ -9,8 +9,8 @@ namespace LuckyPillsRework
     {
         public static LuckyPills Singleton;
         public override string Author { get; } = "imskyyc @ Nut Inc";
-        public override string Name { get; } = "Lucky Pills";
-        public override Version Version { get; } = new Version(3, 3, 0);
+        public override string Name { get; } = "LuckyPillsRework";
+        public override Version Version { get; } = new Version(3, 3, 1);
         public override Version RequiredExiledVersion { get; } = new Version(5, 0, 0);
         public override PluginPriority Priority => PluginPriority.Low;
 
