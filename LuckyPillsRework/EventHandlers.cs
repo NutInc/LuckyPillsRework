@@ -20,8 +20,6 @@ namespace LuckyPillsRework
             Player player = ev.Player;
             ItemType pickupType = ev.Pickup.Type;
 
-            Log.Info(pickupType);
-
             if (pickupType == ItemType.Painkillers)
             {
                 LuckyPills.DebugOutput($"Painkillers equipped!");
