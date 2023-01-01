@@ -8,7 +8,7 @@ namespace LuckyPillsRework
     public class LuckyPills : Plugin<Config>
     {
         public static LuckyPills Singleton;
-        public override string Author { get; } = "imskyyc @ Nut Inc";
+        public override string Author { get; } = "imskyyc @ Nut Inc Development";
         public override string Name { get; } = "LuckyPillsRework";
         public override Version Version { get; } = new Version(3, 4, 0);
         public override Version RequiredExiledVersion { get; } = new Version(6, 0, 0);
@@ -18,11 +18,11 @@ namespace LuckyPillsRework
         {
             Singleton = this;
 
-            Log.Debug("Registering events");
+            Log.Debug("Registering Events");
             PlayerEvent.UsingItem += EventHandlers.OnUsingItem;
             PlayerEvent.PickingUpItem += EventHandlers.OnPickingUpItem;
 
-            Log.Debug("Base onEnabled");
+            Log.Debug("Base OnEnabled");
             base.OnEnabled();
         }
 
