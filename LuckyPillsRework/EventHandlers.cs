@@ -1,53 +1,50 @@
-﻿using Exiled.Events.EventArgs;
-using Exiled.API.Features;
+﻿using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using Exiled.API.Enums;
 using System.Collections.Generic;
 using MEC;
 using UnityEngine;
 using CustomPlayerEffects;
+using Exiled.Events.EventArgs.Player;
+using PlayerRoles;
 
 namespace LuckyPillsRework
 {
     public static class EventHandlers
     {
-
-        static Config config = LuckyPills.Singleton.Config;
+        private static readonly Config Config = LuckyPills.Singleton.Config;
 
         // Picking up item
         public static void OnPickingUpItem(PickingUpItemEventArgs ev)
         {
-            Player player = ev.Player;
-            ItemType pickupType = ev.Pickup.Type;
+            var player = ev.Player;
+            var pickupType = ev.Pickup.Type;
 
-            if (pickupType == ItemType.Painkillers)
-            {
-                LuckyPills.DebugOutput($"Painkillers equipped!");
-                player.ShowHint(LuckyPills.Singleton.Config.PickupMessage);
-            }
+            if (pickupType != ItemType.Painkillers) return;
+            Log.Debug("Painkillers equipped!");
+            player.ShowHint(LuckyPills.Singleton.Config.PickupMessage);
         }
 
         // Using Item stuff
-        static void SpawnGrenadeOnPlayer(Player player, GrenadeType grenadeType, float velocity = 1f)
+        private static void SpawnGrenadeOnPlayer(Player player, ProjectileType grenadeType, float velocity = 1f)
         {
-            bool fullForce = velocity > 1;
+            var fullForce = velocity > 1;
             player.ThrowGrenade(grenadeType, fullForce);
         }
 
-        static IEnumerator<float> VomitItem(Player player, GrenadeType grenadeType, float randomTimer)
+        private static IEnumerator<float> VomitItem(Player player, ProjectileType grenadeType, float randomTimer)
         {
-            for (int i = 0; i < randomTimer * 10.0 && player.IsAlive; ++i)
+            for (var i = 0; i < randomTimer * 10.0 && player.IsAlive; ++i)
             {
-                yield return Timing.WaitForSeconds(config.VomitIntervals[grenadeType]);
-                player.Hurt(config.VomitDamage[grenadeType]);
+                yield return Timing.WaitForSeconds(Config.VomitIntervals[grenadeType]);
+                player.Hurt(Config.VomitDamage[grenadeType]);
 
                 SpawnGrenadeOnPlayer(player, grenadeType, 5f);
             }
         }
         public static void OnUsingItem(UsingItemEventArgs ev)
         {
-            Player player = ev.Player;
-            ItemType itemType = ev.Item.Type;
+            var itemType = ev.Item.Type;
 
             if (itemType == ItemType.Painkillers)
             {
@@ -55,18 +52,19 @@ namespace LuckyPillsRework
             }
         }
 
-        static string NextEffect() => config.EnabledEffects[Random.Range(0, config.EnabledEffects.Count)];
-        static IEnumerator<float> RunPillCoroutine(UsingItemEventArgs ev)
+        private static string NextEffect() => Config.EnabledEffects[Random.Range(0, Config.EnabledEffects.Count)];
+
+        private static IEnumerator<float> RunPillCoroutine(UsingItemEventArgs ev)
         {
             yield return Timing.WaitForSeconds(3f);
 
             Item item = ev.Item;
-            Player player = ev.Player;
+            var player = ev.Player;
 
             if (player.IsInPocketDimension) yield break;
 
-            string effectType = NextEffect();
-            float duration = Mathf.Ceil(Random.Range(config.MinEffectDuration, config.MaxEffectDuration));
+            var effectType = NextEffect();
+            var duration = Mathf.Ceil(Random.Range(Config.MinEffectDuration, Config.MaxEffectDuration));
 
             player.RemoveItem(item);
             player.EnableEffect(effectType, duration, true);
@@ -74,7 +72,7 @@ namespace LuckyPillsRework
             switch (effectType)
             {
                 case "amnesia":
-                    player.EnableEffect<Amnesia>(duration);
+                    player.EnableEffect<AmnesiaVision>(duration);
                     player.ShowHint($"You've been given amnesia for {duration} seconds");
 
                     break;
@@ -84,12 +82,12 @@ namespace LuckyPillsRework
 
                     break;
                 case "bombvomit":
-                    Timing.RunCoroutine(VomitItem(player, GrenadeType.FragGrenade, duration));
+                    Timing.RunCoroutine(VomitItem(player, ProjectileType.FragGrenade, duration));
                     player.ShowHint($"You've been given bomb vomit for {duration} seconds");
 
                     break;
                 case "ballvomit":
-                    Timing.RunCoroutine(VomitItem(player, GrenadeType.Scp018, duration));
+                    Timing.RunCoroutine(VomitItem(player, ProjectileType.Scp018, duration));
                     player.ShowHint($"You've been given ball vomit for {duration} seconds");
 
                     break;
@@ -116,7 +114,7 @@ namespace LuckyPillsRework
 
                     break;
                 case "flashed":
-                    FlashGrenade flashGrenade = (FlashGrenade)Item.Create(ItemType.GrenadeFlash);
+                    var flashGrenade = (FlashGrenade)Item.Create(ItemType.GrenadeFlash);
                     flashGrenade.FuseTime = .5f;
                     flashGrenade.SpawnActive(ev.Player.Position);
 
@@ -124,7 +122,7 @@ namespace LuckyPillsRework
 
                     break;
                 case "flashvomit":
-                    Timing.RunCoroutine(VomitItem(player, GrenadeType.Flashbang, duration));
+                    Timing.RunCoroutine(VomitItem(player, ProjectileType.Flashbang, duration));
                     player.ShowHint($"You've been given flash vomit for {duration} seconds");
 
                     break;
@@ -143,9 +141,9 @@ namespace LuckyPillsRework
                     Exiled.API.Features.Roles.Role cachedMutatorRole = player.Role;
 
                     player.DropItems();
-                    player.SetRole(RoleType.Scp0492, SpawnReason.ForceClass, true);
+                    player.Role.Set(RoleTypeId.Scp0492);
 
-                    Timing.CallDelayed(duration, () => player.SetRole(cachedMutatorRole, SpawnReason.ForceClass, true));
+                    Timing.CallDelayed(duration, () => player.Role.Set(cachedMutatorRole));
 
                     player.ShowHint($"You've been mutated for {duration} seconds");
 
@@ -157,13 +155,13 @@ namespace LuckyPillsRework
 
                     break;
                 case "sinkhole":
-                    player.EnableEffect<SinkHole>(duration);
+                    player.EnableEffect<Sinkhole>(duration);
                     player.ShowHint($"You've been given sinkhole effect for {duration} seconds");
 
                     break;
                 case "scp268":
-                    player.IsInvisible = true;
-                    Timing.CallDelayed(duration, () => player.IsInvisible = false);
+                    player.EnableEffect<Invisible>();
+                    Timing.CallDelayed(duration, () => player.DisableEffect<Invisible>());
 
                     player.ShowHint($"You've been turned invisible for {duration} seconds");
 

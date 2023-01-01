@@ -10,20 +10,19 @@ namespace LuckyPillsRework
         public static LuckyPills Singleton;
         public override string Author { get; } = "imskyyc @ Nut Inc";
         public override string Name { get; } = "LuckyPillsRework";
-        public override Version Version { get; } = new Version(3, 3, 2);
-        public override Version RequiredExiledVersion { get; } = new Version(5, 0, 0);
+        public override Version Version { get; } = new Version(3, 4, 0);
+        public override Version RequiredExiledVersion { get; } = new Version(6, 0, 0);
         public override PluginPriority Priority => PluginPriority.Low;
 
-        public static void DebugOutput(object output) => Log.Debug(output, Singleton.Config.DebugEnabled);
         public override void OnEnabled()
         {
             Singleton = this;
 
-            DebugOutput("Registering events");
+            Log.Debug("Registering events");
             PlayerEvent.UsingItem += EventHandlers.OnUsingItem;
             PlayerEvent.PickingUpItem += EventHandlers.OnPickingUpItem;
 
-            DebugOutput("Base onEnabled");
+            Log.Debug("Base onEnabled");
             base.OnEnabled();
         }
 

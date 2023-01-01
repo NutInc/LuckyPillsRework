@@ -10,22 +10,22 @@ namespace LuckyPillsRework
         [Description("Should the plugin be loaded?")]
         public bool IsEnabled { get; set; } = true;
 
-        [Description("Should extra debug messages be output to the console?")]
-        public bool DebugEnabled { get; set; } = false;
+        [Description("Should debug logs be shown?")]
+        public bool Debug { get; set; }
 
-        public Dictionary<GrenadeType, float> VomitIntervals { get; set; } = new Dictionary<GrenadeType, float>()
+        public Dictionary<ProjectileType, float> VomitIntervals { get; set; } = new Dictionary<ProjectileType, float>()
         {
-            { GrenadeType.Scp018, 5 },
-            { GrenadeType.FragGrenade, 0.1f },
-            { GrenadeType.Flashbang, 0.1f },
+            { ProjectileType.Scp018, 5 },
+            { ProjectileType.FragGrenade, 0.1f },
+            { ProjectileType.Flashbang, 0.1f },
         };
 
         [Description("The amount of damage dealt to the player with the specified vomit effect.")]
-        public Dictionary<GrenadeType, int> VomitDamage { get; set; } = new Dictionary<GrenadeType, int>()
+        public Dictionary<ProjectileType, int> VomitDamage { get; set; } = new Dictionary<ProjectileType, int>()
         {
-            { GrenadeType.Scp018, 1 },
-            { GrenadeType.Flashbang, 1 },
-            { GrenadeType.FragGrenade, 0 },
+            { ProjectileType.Scp018, 1 },
+            { ProjectileType.Flashbang, 1 },
+            { ProjectileType.FragGrenade, 0 },
         };
 
         [Description("Message to be sent to the player when picking up pills.")]
